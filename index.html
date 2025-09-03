@@ -1,36 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
   <title>HSTC Trainer</title>
 
-  <!-- iOS / Android Vollbild -->
+  <!-- PWA / Android -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a73e8">
+
+  <!-- iOS Homescreen / Vollbild -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="HSTC Trainer">
-  <link rel="apple-touch-icon" href="icon.png"><!-- eigenes Icon hochladen -->
-
-  <!-- Manifest für Android -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-180.png">
 
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-      background: #fff;
+    html,body{height:100%;margin:0;background:#f7f7f9}
+    .app{position:fixed;inset:0;display:flex;flex-direction:column}
+    .safe{
+      padding-top:env(safe-area-inset-top);
+      padding-bottom:env(safe-area-inset-bottom);
+      padding-left:env(safe-area-inset-left);
+      padding-right:env(safe-area-inset-right);
     }
-    iframe {
-      border: none;
-      width: 100%;
-      height: 100%;
-    }
+    iframe{flex:1;border:0;width:100%;min-height:0;background:#fff}
+    .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#666}
+    .hidden{display:none}
+    .brand{position:absolute;left:12px;top:12px;display:flex;gap:8px;align-items:center;font:600 14px system-ui}
+    .brand img{height:24px;width:auto}
   </style>
 </head>
 <body>
-  <iframe src="https://script.google.com/macros/s/AKfycbxZ90Qlo18OzAnVK674MxltNN8gfe_R8rZ7lOhSH3z6/dev"></iframe>
+  <div class="app safe">
+    <!-- kleine Ladeanzeige + Marke (optional) -->
+    <div class="brand"><img src="logo.png" alt="HSTC"><span>HSTC</span></div>
+    <div id="loading" class="loading">Lade HSTC…</div>
+
+    <!-- Deine Apps-Script-App im iFrame -->
+    <iframe id="app"
+      src="https://script.google.com/macros/s/AKfycbxZ90Qlo18OzAnVK674MxltNN8gfe_R8rZ7lOhSH3z6/dev"
+      allow="clipboard-write; fullscreen"
+      referrerpolicy="no-referrer">
+    </iframe>
+  </div>
+
+  <script>
+    // Service Worker für PWA (Android „Installieren“)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    }
+    // Loader ausblenden, sobald die App geladen ist
+    document.getElementById('app').addEventListener('load', () => {
+      document.getElementById('loading').classList.add('hidden');
+    });
+  </script>
 </body>
 </html>
