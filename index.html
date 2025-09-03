@@ -2,61 +2,53 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>HSTC Trainer</title>
 
   <!-- PWA / Android -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1a73e8">
 
-  <!-- iOS Homescreen / Vollbild -->
+  <!-- iOS Homescreen -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="HSTC Trainer">
   <link rel="apple-touch-icon" href="icon-180.png">
 
   <style>
-    html,body{height:100%;margin:0;background:#f7f7f9}
-    .app{position:fixed;inset:0;display:flex;flex-direction:column}
-    .safe{
-      padding-top:env(safe-area-inset-top);
-      padding-bottom:env(safe-area-inset-bottom);
-      padding-left:env(safe-area-inset-left);
-      padding-right:env(safe-area-inset-right);
-    }
-    iframe{flex:1;border:0;width:100%;min-height:0;background:#fff}
-    .loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#666}
-    .hidden{display:none}
-    .brand{position:absolute;left:12px;top:12px;display:flex;gap:8px;align-items:center;font:600 14px system-ui}
-    .brand img{height:24px;width:auto}
+    html,body{height:100%;margin:0;background:#f7f7f9;font-family:system-ui,Segoe UI,Roboto,Arial}
+    .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{max-width:520px;width:100%;background:#fff;border:1px solid #e6e6ee;border-radius:16px;padding:24px;box-shadow:0 6px 24px rgba(0,0,0,.06)}
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+    .brand img{height:36px;width:auto}
+    h1{font-size:20px;margin:0 0 4px}
+    p{color:#555;margin:0 0 16px}
+    .btn{display:inline-block;padding:12px 16px;border-radius:10px;background:#1a73e8;color:#fff;text-decoration:none;font-weight:600}
+    .btn.secondary{background:#eef0f5;color:#222;border:1px solid #dcdde4}
+    .hint{font-size:13px;color:#666;margin-top:12px;line-height:1.4}
   </style>
 </head>
 <body>
-  <div class="app safe">
-    <!-- kleine Ladeanzeige + Marke (optional) -->
-    <div class="brand"><img src="logo.png" alt="HSTC"><span>HSTC</span></div>
-    <div id="loading" class="loading">Lade HSTC…</div>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">
+        <img src="logo.png" alt="HSTC">
+        <div>
+          <h1>HSTC Trainer</h1>
+          <div style="color:#666;font-size:13px">Sicherer Start mit Google-Login</div>
+        </div>
+      </div>
 
-    <!-- Deine Apps-Script-App im iFrame -->
-    <iframe id="app"
-      src="https://script.google.com/macros/s/AKfycbxZ90Qlo18OzAnVK674MxltNN8gfe_R8rZ7lOhSH3z6/exec"
-      allow="clipboard-write; fullscreen"
-      referrerpolicy="no-referrer">
-    </iframe>
+      <p>Um deine persönlichen Trainingsdaten zu laden, melde dich bei Google an.</p>
+
+      <!-- WICHTIG: auf /exec und im selben Tab öffnen -->
+      <a class="btn" href="https://script.google.com/macros/s/AKfycbxZ90Qlo18OzAnVK674MxltNN8gfe_R8rZ7lOhSH3z6/exec">App starten</a>
+
+      <div class="hint">
+        Tipp: Falls eine Anmeldeseite erscheint, melde dich an und kehre anschließend ggf. zu diesem Icon zurück.
+        Auf Android kannst du diese Seite „Installieren“, auf iOS über „Zum Home-Bildschirm“ hinzufügen.
+      </div>
+    </div>
   </div>
-
-  <script>
-    // Service Worker für PWA (Android „Installieren“)
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(()=>{});
-    }
-    // Loader ausblenden, sobald die App geladen ist
-    document.getElementById('app').addEventListener('load', () => {
-      document.getElementById('loading').classList.add('hidden');
-    });
-  </script>
 </body>
 </html>
-
-
