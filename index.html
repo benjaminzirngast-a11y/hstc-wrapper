@@ -14,6 +14,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="HSTC Trainer">
   <link rel="apple-touch-icon" href="icon-180.png">
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
     html,body{height:100%;margin:0;background:#f7f7f9;font-family:system-ui,Segoe UI,Roboto,Arial}
@@ -38,6 +40,43 @@
           <div style="color:#666;font-size:13px">Sicherer Start mit Google-Login</div>
         </div>
       </div>
+<div id="g_id_onload"
+     data-client_id="DEINE_OAUTH_CLIENT_ID.apps.googleusercontent.com"
+     data-callback="onGoogleSignIn"
+     data-auto_prompt="false">
+</div>
+<div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline"></div>
+
+<script>
+  let idToken = null;
+
+  // Callback wenn sich der User einloggt
+  function onGoogleSignIn(resp) {
+    idToken = resp.credential; // JWT ID-Token vom Google-Login
+    // Beispiel: Backend "bootstrap" aufrufen
+    callBackend('bootstrap', {}).then(data => {
+      console.log('Bootstrap:', data);
+      // ... hier UI füllen (dogs/exercises etc.)
+    }).catch(err => alert('Login/Backend-Fehler: ' + err.message));
+  }
+
+  async function callBackend(action, payload) {
+    if (!idToken) throw new Error('Nicht eingeloggt');
+    const res = await fetch('https://script.google.com/macros/s/DEINE_EXEC_ID/exec', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + idToken
+      },
+      body: JSON.stringify({ action, payload })
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error('HTTP ' + res.status + ': ' + t);
+    }
+    return res.json();
+  }
+</script>
 
       <p>Um deine persönlichen Trainingsdaten zu laden, melde dich bei Google an.</p>
 
@@ -52,4 +91,5 @@
   </div>
 </body>
 </html>
+
 
