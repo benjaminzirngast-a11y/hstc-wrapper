@@ -2,73 +2,139 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>HSTC Trainer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-  <!-- Grund-Styles -->
+  <!-- PWA / iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="HSTC Trainer">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#d12a2a">
+
   <style>
     :root{
-      --bg:#f6f7fb; --card:#fff; --ink:#0b1220; --muted:#667085;
-      --brand:#1a73e8; --border:#e5e7ef; --radius:14px; --pad:14px;
+      /* Vereinsfarben */
+      --black:#0b0b0b; --red:#d12a2a; --white:#ffffff;
+      --ink:#0f172a; --bg:#f6f7fb; --card:#fff; --muted:#667085; --border:#e6e7ef;
+      --radius:14px; --pad:14px;
+      --r1:#111111; --r2:#ef4444; --r3:#facc15; --r4:#22c55e; --r5:#2563eb;
     }
-    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
-    .container{max-width:1000px;margin:0 auto;padding:16px}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+    .container{max-width:1100px;margin:0 auto;padding:16px}
     .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:var(--pad);box-shadow:0 1px 4px rgba(0,0,0,.04)}
     h1,h2,h3{margin:8px 0 10px}
     label{font-size:14px;color:#334155}
-    input,select,button{font-size:16px}
-    input,select{padding:8px;border:1px solid #d7dbe7;border-radius:10px;background:#fff}
+    input,select,button,textarea{font:inherit}
+    input,select,textarea{padding:10px;border:1px solid #d7dbe7;border-radius:10px;background:#fff;min-height:40px}
     button{padding:10px 14px;border-radius:10px;border:1px solid #cdd3e0;background:#fff;cursor:pointer}
-    button.primary{background:var(--brand);color:#fff;border-color:transparent}
+    button.primary{background:var(--red);color:#fff;border-color:transparent}
     button:disabled{opacity:.6;cursor:not-allowed}
     .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    .center{text-align:center}
     .muted{color:var(--muted);font-size:14px}
+    .center{text-align:center}
     .mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
-    .home-grid{display:grid;gap:12px;grid-template-columns:1fr;max-width:560px;margin:24px auto}
-    .home-grid button{padding:16px 18px;font-weight:600}
-    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
-    .top-actions{display:flex;gap:8px;align-items:center}
-    .hidden{display:none}
-    .tabs-inline{display:inline-flex;border:1px solid #d7dbe7;border-radius:999px;overflow:hidden}
-    .tabs-inline button{border:0;border-right:1px solid #d7dbe7;background:#f3f4f8;padding:8px 12px}
-    .tabs-inline button:last-child{border-right:0}
-    .tabs-inline button.active{background:#1e293b;color:#fff}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-    @media (max-width:700px){.grid2,.grid3{grid-template-columns:1fr}}
+
+    /* Top */
+    .topbar{position:sticky;top:0;background:var(--white);border-bottom:1px solid var(--border);z-index:10}
+    .topbar .row{display:flex;justify-content:space-between;align-items:center;padding:12px 18px}
+    .title{font-weight:800;letter-spacing:.3px}
+    .back{display:none}
+
+    /* Screens */
+    .screen{display:none}
+    .screen.active{display:block}
+
+    /* Home Tiles */
+    .tiles{display:grid;grid-template-columns:repeat(3,minmax(220px,1fr));gap:14px}
+    @media (max-width:980px){.tiles{grid-template-columns:repeat(2,minmax(220px,1fr))}}
+    @media (max-width:720px){.tiles{grid-template-columns:1fr}}
+    .tile{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:16px;border:1px solid var(--border);background:#fff;cursor:pointer;transition:transform .06s}
+    .tile:hover{transform:translateY(-1px)}
+    .tile h3{margin:0}
+    .tile .sub{color:var(--muted);font-size:14px}
+    .tile .icon{font-size:24px}
+
+    /* Forms */
+    .formgrid-3{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(220px,1fr))}
+    @media (max-width:980px){ .formgrid-3{ grid-template-columns:repeat(2,minmax(220px,1fr)) } }
+    @media (max-width:720px){ .formgrid-3{ grid-template-columns:1fr } }
 
     /* Matrix */
     .matrix-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;background:#fff}
     table.matrix{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%}
     table.matrix th, table.matrix td{border-bottom:1px solid #eee;border-right:1px solid #eee;padding:8px 10px;text-align:center;white-space:nowrap}
-    table.matrix thead th{position:sticky;top:0;background:#0f172a;color:#e5e7eb;z-index:2}
-    table.matrix th:first-child{position:sticky;left:0;background:#0f172a;color:#e5e7eb;z-index:3}
-    table.matrix td:first-child{position:sticky;left:0;background:#f8fafc;z-index:1;text-align:left}
+    table.matrix thead th{position:sticky;top:0;background:#0b0b0b;color:#f1f5f9;z-index:2}
+    table.matrix th:first-child{position:sticky;left:0;background:#0b0b0b;color:#f1f5f9;z-index:3}
+    table.matrix td:first-child{position:sticky;left:0;background:#fff;z-index:1}
 
-    .dot{display:inline-block;width:18px;height:18px;border-radius:50%}
-    .r1{background:#1e40af}.r2{background:#16a34a}.r3{background:#eab308}.r4{background:#f59e0b}.r5{background:#ef4444}
-    .rating-pick .dot{margin-right:6px;border:2px solid transparent;cursor:pointer}
-    .rating-pick .dot.sel{outline:2px solid #0ea5e9;outline-offset:1px}
-    .note-btn{margin-left:8px;font-size:14px;padding:4px 8px}
+    /* Training: 1 Spalte */
+    #tr-exlist{display:grid;grid-template-columns:1fr;gap:12px}
+    .tr-card{display:flex;flex-direction:column;gap:8px}
+    .note-input{min-height:40px;width:100%}
 
+    /* Rating Dots */
+    .dot{display:inline-block;width:18px;height:18px;border-radius:50%;border:1px solid #d7dbe7;margin-right:6px}
+    .r1{background:var(--r1)}.r2{background:var(--r2)}.r3{background:var(--r3)}.r4{background:var(--r4)}.r5{background:var(--r5)}
+    .rating-pick .dot{opacity:.35;cursor:pointer}
+    .rating-pick .dot.sel{opacity:1;box-shadow:0 0 0 2px #0002}
+
+    /* KPI */
     .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
     .kpi .card{padding:12px}
     @media (max-width:900px){.kpi{grid-template-columns:repeat(2,1fr)}}
     @media (max-width:520px){.kpi{grid-template-columns:1fr}}
 
+    /* Chart: fixe/auto Höhe und horizontal scrollen */
+    #chart-wrap{overflow-x:auto;border:1px solid #e6e7eb;border-radius:12px;background:#fafafa;padding:8px}
+    #chart-line{
+      height:clamp(260px, 32vh, 420px); /* auto an Bildschirm, aber begrenzt */
+      min-width:600px;
+      touch-action:none;
+    }
+
+    /* Toast */
     .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;background:#0a7;color:#fff;padding:10px 14px;border-radius:10px;display:none}
     .danger{background:#b00020}
+
+    /* GPS */
+    #map{height:320px;border-radius:12px;border:1px solid var(--border)}
+    .gpsbar{height:10px;border-radius:999px;background:linear-gradient(90deg,#b00020,#f59e0b,#16a34a);position:relative}
+    .gpsbar .needle{position:absolute;top:-3px;width:2px;height:16px;background:#111;border-radius:1px}
+
+    /* Tabs (Profil: Ich/Hunde) */
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tabs button{padding:8px 10px;border-radius:999px;border:1px solid #d7dbe7;background:#fff}
+    .tabs .active{background:#0b0b0b;color:#fff;border-color:#0b0b0b}
+
+    /* Wasserzeichen */
+    .watermark{opacity:.6;font-size:12px;text-align:center;margin:24px 0}
   </style>
 
-  <!-- Chart.js + Date-Adapter (für Zeitachse) -->
+  <!-- Chart.js + Date Adapter -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0"></script>
+
+  <!-- Leaflet (Map für Fährte) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-  <div class="container">
+  <div class="topbar">
+    <div class="row">
+      <div class="title"><span class="back" id="btnBack">←</span> <span id="ttl">Start</span></div>
+      <div><span style="background:#0b0b0b;color:#fff;border-radius:999px;padding:3px 10px;font-size:12px">Schwarz · Rot · Weiß</span></div>
+    </div>
+  </div>
+
+  <main class="container">
     <!-- LOGIN -->
-    <div id="screen-login" class="card" style="max-width:520px;margin:40px auto">
+    <section id="screen-login" class="card" style="max-width:560px;margin:40px auto">
       <h2 class="center">Anmelden</h2>
       <div class="row">
         <label style="flex:1">E-Mail
@@ -83,70 +149,67 @@
         <button id="signup-btn">Registrieren</button>
       </div>
       <div id="login-msg" class="muted center mt8"></div>
-    </div>
+    </section>
 
     <!-- HOME -->
-    <div id="screen-home" class="hidden">
+    <section id="screen-home" class="screen">
       <div class="card">
-        <div class="topbar">
-          <h2 id="welcome-name">Willkommen</h2>
-          <div class="top-actions">
-            <span class="muted" id="whoami"></span>
-            <button id="logout-btn">Abmelden</button>
-          </div>
-        </div>
-        <div class="home-grid">
-          <button id="go-overview" class="primary">Übersicht</button>
-          <button id="go-training" class="primary">Training</button>
-          <button id="go-team" class="primary hidden">Team (Admin)</button>
-          <button id="go-admin" class="primary hidden">Verwaltung (Admin)</button>
+        <h2>Willkommen 👋</h2>
+        <p class="muted">Wähle, was du tun möchtest:</p>
+        <div class="tiles mt12">
+          <div class="tile" onclick="go('training')"><div class="icon">🎯</div><h3>Training</h3><div class="sub">Neue Session anlegen</div></div>
+          <div class="tile" onclick="go('overview')"><div class="icon">📊</div><h3>Übersicht</h3><div class="sub">Tabelle & Verlauf</div></div>
+          <div class="tile" onclick="go('tracks')"><div class="icon">🗺️</div><h3>Fährte</h3><div class="sub">GPS-Track & „X“-Marken</div></div>
+          <div class="tile" onclick="go('team')"><div class="icon">👥</div><h3>Team</h3><div class="sub">Trainer/Handler</div></div>
+          <div class="tile" onclick="go('admin')"><div class="icon">🛠</div><h3>Verwaltung</h3><div class="sub">Einladungen, Zuordnungen</div></div>
+          <div class="tile" onclick="go('profile')"><div class="icon">🙍</div><h3>Profil</h3><div class="sub">Ich & Hunde</div></div>
+          <div class="tile" onclick="go('help')"><div class="icon">❓</div><h3>Hilfe</h3><div class="sub">How-To, FAQ, Feedback</div></div>
+          <div class="tile" onclick="go('about')"><div class="icon">ℹ️</div><h3>About</h3><div class="sub">Rechtliches & Kontakt</div></div>
         </div>
       </div>
-    </div>
+      <div class="watermark">© by Benjamin Zirngast</div>
+    </section>
 
-    <!-- HEADER IN SCREENS -->
-    <div id="screen-header" class="hidden">
-      <div class="card topbar">
-        <h2 id="screen-title">—</h2>
-        <div class="top-actions">
-          <button id="btn-home">Home</button>
+    <!-- HEADER (Back) -->
+    <section id="screen-header" class="screen"></section>
+
+    <!-- TRAINING -->
+    <section id="screen-training" class="screen">
+      <div class="card">
+        <h2>Neue Session</h2>
+        <div class="muted mt8" id="mode-banner">Modus: <b id="mode-label">Eigenbewertung</b> <button id="mode-change" type="button">ändern</button></div>
+        <div class="formgrid-3 mt8">
+          <label>Hund <select id="tr-dog"></select></label>
+          <label>Datum <input id="tr-date" type="date"></label>
+          <label>Kategorie <select id="tr-cat"></select></label>
         </div>
+        <div id="tr-exlist" class="mt16"></div>
+        <div class="mt12"><button id="tr-save" class="primary">Session speichern</button></div>
+        <div id="tr-msg" class="muted mt8"></div>
       </div>
-    </div>
+    </section>
 
     <!-- ÜBERSICHT -->
-    <div id="screen-overview" class="hidden">
+    <section id="screen-overview" class="screen">
       <div class="card">
-        <h3>Filter</h3>
-        <div class="grid3">
-          <label>Hund
-            <select id="ov-dog" style="width:100%"></select>
-          </label>
-          <label>Kategorie
-            <select id="ov-cat" style="width:100%"></select>
-          </label>
-          <label>Ab Datum
-            <input id="ov-from" type="date" style="width:100%">
-          </label>
+        <h2>Übersicht</h2>
+        <div class="formgrid-3">
+          <label>Hund <select id="ov-dog"></select></label>
+          <label>Kategorie <select id="ov-cat"></select></label>
+          <label>Ab Datum <input id="ov-from" type="date"></label>
         </div>
-        <div class="grid2 mt12">
+        <div class="row mt12">
           <label>Übung
-            <select id="ov-ex" style="width:100%">
+            <select id="ov-ex">
               <option value="all">Alle</option>
             </select>
           </label>
-          <div>
-            <div class="tabs-inline">
-              <button id="mode-eb" class="active" type="button">EB</button>
-              <button id="mode-tb" type="button">TB</button>
-              <button id="mode-both" type="button">Beide</button>
-            </div>
-            <div class="tabs-inline mt8">
-              <button id="tab-table" class="active" type="button">Tabelle</button>
-              <button id="tab-stats" type="button">Statistik</button>
-            </div>
-            <button id="ov-load" class="primary" style="margin-left:8px">Laden</button>
+          <div class="tabs">
+            <button id="tab-table" class="active" type="button">Tabelle</button>
+            <button id="tab-stats" type="button">Statistik</button>
           </div>
+          <div class="muted">Modus: <b id="ov-mode-label">Eigenbewertung</b></div>
+          <button id="ov-load" class="primary">Laden</button>
         </div>
       </div>
 
@@ -158,135 +221,259 @@
             <tbody id="ov-body"></tbody>
           </table>
         </div>
-        <div class="muted mt8">Tipp auf eine Zelle zeigt die Notiz (falls vorhanden).</div>
       </div>
 
       <!-- Statistik -->
       <div id="ov-view-stats" class="hidden mt16">
-        <div class="kpi">
-          <div class="card"><div class="muted">Anz. Trainings</div><div id="kpi-trainings" style="font-size:22px;font-weight:700">–</div></div>
-          <div class="card"><div class="muted">Anz. Übungen</div><div id="kpi-entries" style="font-size:22px;font-weight:700">–</div></div>
-          <div class="card"><div class="muted">Ø Kategorie (EB/TB)</div><div id="kpi-avg-cat" style="font-size:22px;font-weight:700">–</div></div>
-          <div class="card"><div class="muted">Ø Übung (EB/TB)</div><div id="kpi-avg-ex" style="font-size:22px;font-weight:700">–</div></div>
+        <div class="card">
+          <div class="kpi">
+            <div class="card"><div class="muted">Anz. Trainings</div><div id="kpi-trainings" style="font-size:22px;font-weight:700">–</div></div>
+            <div class="card"><div class="muted">Anz. Einträge</div><div id="kpi-entries" style="font-size:22px;font-weight:700">–</div></div>
+            <div class="card"><div class="muted">Ø Bewertung</div><div id="kpi-avg-cat" style="font-size:22px;font-weight:700">–</div></div>
+            <div class="card"><div class="muted">Ø Übung</div><div id="kpi-avg-ex" style="font-size:22px;font-weight:700">–</div></div>
+          </div>
         </div>
 
         <div class="card mt16">
-          <h3>Verlauf (EB & TB)</h3>
-          <canvas id="chart-line" height="240"></canvas>
-          <div class="muted mt8">Punkt klicken: unten erscheint die Tabelle dieses Trainings; bei einzelner Übung erscheint (falls vorhanden) direkt die Notiz.</div>
+          <h3>Verlauf</h3>
+          <div id="chart-wrap">
+            <canvas id="chart-line"></canvas>
+          </div>
         </div>
 
         <div class="card mt16">
-          <h3>Selten/Alt/Schwach</h3>
-          <div id="stats-rare" class="mt8"></div>
-        </div>
-
-        <div class="card mt16">
-          <h3>Details zum gewählten Trainingstag</h3>
+          <h3>Details</h3>
           <table class="matrix" id="ov-train-table" style="min-width:100%">
             <thead><tr><th>Übung</th><th>EB</th><th>TB</th><th>Notiz</th></tr></thead>
             <tbody id="ov-train-body"></tbody>
           </table>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- TRAINING -->
-    <div id="screen-training" class="hidden">
+    <!-- TRACKS (Fährte) -->
+    <section id="screen-tracks" class="screen">
       <div class="card">
-        <h3>Neue Session</h3>
-        <div class="grid3">
-          <label>Hund
-            <select id="tr-dog" style="width:100%"></select>
-          </label>
-          <label>Datum
-            <input id="tr-date" type="date" style="width:100%">
-          </label>
-          <label>Kategorie
-            <select id="tr-cat" style="width:100%"></select>
-          </label>
-        </div>
-      </div>
-
-      <div class="card mt16">
-        <h3>Übungen</h3>
-        <div id="tr-exlist" class="row" style="align-items:flex-start"></div>
-        <div class="mt12 center">
-          <button id="tr-save" class="primary">Session speichern</button>
-          <span id="tr-msg" class="muted" style="margin-left:8px"></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- TEAM (Admin) -->
-    <div id="screen-team" class="hidden">
-      <div class="card">
-        <h3>Team-Filter</h3>
-        <div class="grid3">
-          <label>Hundeführer
-            <select id="tm-handler" style="width:100%"></select>
-          </label>
-          <label>Hund
-            <select id="tm-dog" style="width:100%"><option value="all">Alle</option></select>
-          </label>
-          <label>Ab Datum
-            <input id="tm-from" type="date" style="width:100%">
-          </label>
-        </div>
-        <div class="grid2 mt12">
-          <label>Kategorie
-            <select id="tm-cat" style="width:100%"></select>
-          </label>
-          <label>Übung
-            <select id="tm-ex" style="width:100%"><option value="all">Alle</option></select>
-          </label>
+        <h2>Fährte aufzeichnen</h2>
+        <div class="formgrid-3">
+          <label>Hund <select id="trck-dog"></select></label>
+          <label>Name (optional) <input id="trck-name" placeholder="z.B. Fährte Nordfeld"></label>
+          <label>Notiz (optional) <input id="trck-note" placeholder=""></label>
         </div>
         <div class="mt12">
-          <button id="tm-load" class="primary">Übersicht laden</button>
+          <div class="muted">GPS-Genauigkeit: <b id="gps-acc">–</b> m</div>
+          <div class="gpsbar mt8"><div id="gps-needle" class="needle" style="left:0"></div></div>
         </div>
+        <div id="map" class="mt12"></div>
+        <div class="row mt12">
+          <button id="btn-start" class="primary" disabled>Aufzeichnung starten</button>
+          <button id="btn-stop" disabled>Stoppen & Speichern</button>
+          <button id="btn-mark" disabled>„X“ setzen</button>
+        </div>
+        <div class="muted mt8">Speichert nur Punkte bei ≥ <b id="thres-dist">5</b> m oder ≥ <b id="thres-time">3</b> s.</div>
       </div>
 
       <div class="card mt16">
-        <div class="matrix-wrap mt12">
+        <h3>Letzte Tracks</h3>
+        <ul id="track-list" class="mt8" style="padding-left:18px"></ul>
+      </div>
+    </section>
+
+    <!-- TEAM -->
+    <section id="screen-team" class="screen">
+      <div class="card">
+        <h2>Team Übersicht</h2>
+        <div class="formgrid-3">
+          <label>Handler <select id="tm-handler"></select></label>
+          <label>Hund <select id="tm-dog"><option value="all">Alle</option></select></label>
+          <label>Ab Datum <input id="tm-from" type="date"></label>
+        </div>
+      </div>
+      <div class="card mt16">
+        <div class="matrix-wrap">
           <table class="matrix" id="tm-table"><thead id="tm-head"></thead><tbody id="tm-body"></tbody></table>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- VERWALTUNG (Admin) -->
-    <div id="screen-admin" class="hidden">
+    <!-- VERWALTUNG -->
+    <section id="screen-admin" class="screen">
       <div class="card">
-        <h3>Person anlegen (Einladung per E-Mail)</h3>
-        <div class="grid3">
-          <label>Vorname <input id="ad-first" type="text"></label>
-          <label>Nachname <input id="ad-last" type="text"></label>
-          <label>E-Mail   <input id="ad-email" type="email"></label>
+        <h2>Einladung</h2>
+        <div class="formgrid-3">
+          <label>Vollname <input id="ad-fullname" type="text" placeholder="Max Muster"></label>
+          <label>E-Mail <input id="ad-email" type="email"></label>
+          <label>Rolle
+            <select id="ad-role"><option value="user">User</option><option value="trainer">Trainer</option><option value="admin">Admin</option></select>
+          </label>
         </div>
-        <div class="mt12">
+        <div class="row mt12">
           <button id="ad-invite" class="primary">Einladung senden</button>
           <span id="ad-msg" class="muted"></span>
         </div>
       </div>
 
       <div class="card mt16">
-        <h3>Hunde verwalten</h3>
+        <h2>Hunde verwalten</h2>
         <div class="row">
           <label>Name <input id="ad-dog-name" type="text"></label>
           <label>Rasse <input id="ad-dog-breed" type="text"></label>
-          <button id="ad-dog-add" class="primary">Hund hinzufügen</button>
+          <label>Wurftag <input id="ad-dog-birth" type="date"></label>
+          <button id="ad-dog-add" class="primary">Hinzufügen</button>
         </div>
         <ul id="ad-dog-list" class="mt12"></ul>
       </div>
-    </div>
-  </div>
+
+      <div class="card mt16">
+        <h2>Personen & Hunde</h2>
+        <div class="matrix-wrap mt12">
+          <table class="matrix" id="ad-people">
+            <thead><tr><th style="width:70px">ID</th><th>Name</th><th>Aktion</th></tr></thead>
+            <tbody id="ad-people-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <dialog id="dlg-assign" style="border:none;border-radius:12px;padding:0;max-width:520px;width:92%">
+        <form method="dialog" style="padding:16px">
+          <h3>Hunde zuordnen</h3>
+          <input type="hidden" id="assign-person-id">
+          <div id="assign-dogs-list" class="card" style="max-height:50vh;overflow:auto"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+            <button value="cancel">Abbrechen</button>
+            <button id="btn-assign-save" class="primary" type="submit">Speichern</button>
+          </div>
+        </form>
+      </dialog>
+    </section>
+
+    <!-- PROFIL -->
+    <section id="screen-profile" class="screen">
+      <div class="card">
+        <h2>Profil</h2>
+        <div class="tabs mt8">
+          <button id="tab-me" class="active" type="button">Ich</button>
+          <button id="tab-dogs" type="button">Hunde</button>
+        </div>
+      </div>
+
+      <!-- Ich -->
+      <div id="pane-me" class="card mt12">
+        <div class="row">
+          <div style="width:96px;height:96px;border-radius:999px;background:#eee;overflow:hidden">
+            <img id="me-avatar" alt="" style="width:96px;height:96px;object-fit:cover">
+          </div>
+          <div>
+            <div><b id="me-name">—</b></div>
+            <div class="muted" id="me-email">—</div>
+            <div class="row mt8">
+              <input type="file" id="me-avatar-file" accept="image/*">
+              <button id="me-avatar-upload" class="primary">Bild hochladen</button>
+            </div>
+          </div>
+        </div>
+        <div class="formgrid-3 mt12">
+          <label>Anzeigename <input id="me-display" value=""></label>
+          <label>Passwort <button id="me-pass" class="primary">Passwort ändern</button></label>
+          <label>—</label>
+        </div>
+        <div class="row mt12">
+          <button id="me-save" class="primary">Profil speichern</button>
+        </div>
+      </div>
+
+      <!-- Hunde -->
+      <div id="pane-dogs" class="card mt12" style="display:none">
+        <h3>Meine Hunde</h3>
+        <div id="my-dogs" class="row"></div>
+      </div>
+    </section>
+
+    <!-- HILFE -->
+    <section id="screen-help" class="screen">
+      <div class="card">
+        <h2>Hilfe & How-To</h2>
+        <details open><summary><b>Training anlegen</b></summary><p class="muted">Hund & Kategorie wählen, Übungen bewerten (Dot anklicken, nochmal klicken = abwählen), optional Notizen, speichern.</p></details>
+        <details><summary><b>Übersicht</b></summary><p class="muted">Tabelle zeigt alle Übungen der Kategorie je Trainingstag. Nicht gemachte Übungen bleiben leer. Statistik unten mit fester Höhe; bei vielen Punkten horizontal scrollen.</p></details>
+        <details><summary><b>Fährte</b></summary><p class="muted">GPS prüfen (Balken), Aufzeichnung starten, bei Bedarf „X“ setzen, stoppen & speichern. Tracks unten antippen zum Anzeigen.</p></details>
+        <details><summary><b>Profil & Hunde</b></summary><p class="muted">Profilbild/Anzeigename ändern. Hundedaten & Foto pflegen (Fotos werden beim Upload verkleinert, um Daten zu sparen).</p></details>
+        <div class="row mt12"><button id="btn-feedback" class="primary">Feedback senden</button></div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="screen-about" class="screen">
+      <div class="card">
+        <h2>About</h2>
+        <p class="muted">
+          Diese App ist geistiges Eigentum von <b>Benjamin Zirngast</b> und wurde exklusiv für den
+          <b>HSTC Wiener Neustadt</b> entwickelt. Es besteht <b>keine Datensicherung</b> oder Gewährleistung.
+          Nutzung auf eigenes Risiko. Die Inhalte dienen ausschließlich der internen Vereinsorganisation und dem Training.
+        </p>
+        <p class="muted">
+          © by Benjamin Zirngast — Alle Rechte vorbehalten. Anfragen & Kontakt: <a href="mailto:info@hstc.at">info@hstc.at</a>
+        </p>
+      </div>
+      <div class="watermark">© by Benjamin Zirngast</div>
+    </section>
+  </main>
+
+  <!-- Dialogs -->
+  <dialog id="dlg-mode" style="border:none;border-radius:12px;padding:0;max-width:420px;width:92%">
+    <form method="dialog" style="padding:16px">
+      <h3>Modus wählen</h3>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+        <label style="flex:1;min-width:160px;border:1px solid #d7dbe7;border-radius:10px;padding:10px;display:flex;gap:8px;align-items:center">
+          <input type="radio" name="evalmode" value="eb" checked>
+          <div><div style="font-weight:600">Eigenbewertung</div></div>
+        </label>
+        <label style="flex:1;min-width:160px;border:1px solid #d7dbe7;border-radius:10px;padding:10px;display:flex;gap:8px;align-items:center">
+          <input type="radio" name="evalmode" value="tb">
+          <div><div style="font-weight:600">Trainerbewertung</div></div>
+        </label>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+        <button value="cancel">Abbrechen</button>
+        <button id="mode-apply" class="primary" type="submit">Übernehmen</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-setpw" style="border:none;border-radius:12px;padding:0;max-width:420px;width:92%">
+    <form method="dialog" style="padding:16px">
+      <h3>Passwort festlegen</h3>
+      <p class="muted">Bitte setze jetzt ein Passwort für deinen Account.</p>
+      <label style="display:block;margin-top:8px">Neues Passwort
+        <input id="pw1" type="password" placeholder="mind. 8 Zeichen" style="width:100%">
+      </label>
+      <label style="display:block;margin-top:8px">Wiederholen
+        <input id="pw2" type="password" placeholder="nochmal" style="width:100%">
+      </label>
+      <div id="pw-msg" class="muted" style="margin-top:8px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+        <button value="cancel" type="button" id="pw-cancel">Später</button>
+        <button id="pw-save" class="primary" type="button">Speichern</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-feedback" style="border:none;border-radius:12px;padding:0;max-width:520px;width:92%">
+    <form method="dialog" style="padding:16px">
+      <h3>Feedback</h3>
+      <textarea id="feedback-text" rows="6" placeholder="Dein Feedback an den Verein…" style="width:100%"></textarea>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+        <button value="cancel">Abbrechen</button>
+        <button id="feedback-send" class="primary" type="submit">E-Mail öffnen</button>
+      </div>
+    </form>
+  </dialog>
 
   <div id="toast" class="toast"></div>
 
-  <!-- App-Script -->
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-    // === Supabase ===
+    // === Supabase Client (app-Schema) ===
     const sb = createClient(
       'https://vtollmxfgurqxorbodad.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0b2xsbXhmZ3VycXhvcmJvZGFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMzM5ODcsImV4cCI6MjA3MjkwOTk4N30.FmmOU2pST4YPKeiRcFSDugMLgXuCPxGOKuxidjnu-w0',
@@ -295,26 +482,33 @@
 
     // === Helpers/UI ===
     const $ = (q)=>document.querySelector(q);
-    const show = (sel)=>$(sel).classList.remove('hidden');
-    const hide = (sel)=>$(sel).classList.add('hidden');
+    const show = (id)=>$(id).classList.remove('screen')||$(id).classList.add('active');
+    const hideAll = ()=>document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     const toast = (t, ok=true)=>{ const el=$('#toast'); el.textContent=t; el.classList.toggle('danger', !ok); el.style.display='block'; setTimeout(()=>el.style.display='none', 2000); };
     const todayStr = ()=> new Date().toISOString().slice(0,10);
     const COLORS = {1:'r1',2:'r2',3:'r3',4:'r4',5:'r5'};
+
+    let CLUB_ID = null;
     let profile=null, cats=[], exercises=[], dogs=[], people=[], sessionsCache=[];
-    let lineChart=null, ratingMode='eb'; // 'eb' | 'tb' | 'both'
+    let lineChart=null, EVAL_MODE='eb';
+
+    function go(screen){
+      hideAll();
+      const map={home:'#screen-home',training:'#screen-training',overview:'#screen-overview',team:'#screen-team',admin:'#screen-admin',profile:'#screen-profile',help:'#screen-help',about:'#screen-about',tracks:'#screen-tracks'};
+      const id = map[screen] || '#screen-home';
+      document.querySelector(id).classList.add('active');
+      $('#btnBack').style.display = (id==='#screen-home' || id==='#screen-login') ? 'none' : 'inline-block';
+      const titles = { '#screen-home':'Start','#screen-training':'Training','#screen-overview':'Übersicht','#screen-team':'Team','#screen-admin':'Verwaltung','#screen-profile':'Profil','#screen-help':'Hilfe','#screen-about':'About','#screen-tracks':'Fährte','#screen-login':'Anmelden' };
+      $('#ttl').textContent = titles[id] || 'HSTC';
+    }
+    $('#btnBack').addEventListener('click', ()=>go('home'));
 
     function lock(btn, locked=true){ if(!btn) return; btn.disabled=locked; if(locked) btn.dataset.lock='1'; else delete btn.dataset.lock; }
-
-    // NAV
-    function goHome(){
-      ['#screen-overview','#screen-training','#screen-team','#screen-admin','#screen-header'].forEach(hide);
-      show('#screen-home');
-    }
-    function openScreen(title, id){
-      $('#screen-title').textContent = title;
-      hide('#screen-home'); show('#screen-header');
-      ['#screen-overview','#screen-training','#screen-team','#screen-admin'].forEach(hide);
-      show(id);
+    function setDate(inp, v){ if(inp) inp.value=v; }
+    function fillSel(sel, items, value='id', label='name'){
+      if(!sel) return;
+      const lab = (typeof label==='function') ? label : (x)=>x[label];
+      sel.innerHTML = (items||[]).map(i=>`<option value="${i[value]}">${lab(i)}</option>`).join('');
     }
 
     // AUTH
@@ -335,113 +529,181 @@
       if(error){ $('#login-msg').textContent='Fehler: '+error.message; return; }
       $('#login-msg').textContent='Registrierung ok – E-Mail prüfen.';
     });
-    $('#logout-btn').addEventListener('click', async ()=>{
-      await sb.auth.signOut(); profile=null; goLogin();
-    });
-    function goLogin(){
-      ['#screen-home','#screen-header','#screen-overview','#screen-training','#screen-team','#screen-admin'].forEach(hide);
-      show('#screen-login');
-      $('#email').value=''; $('#password').value='';
-    }
 
     // AFTER LOGIN
     async function afterLogin(){
       const { data:ud } = await sb.auth.getUser();
       const uid = ud?.user?.id;
-      if(!uid){ goLogin(); return; }
+      if(!uid){ go('login'); return; }
+
+      // Club-ID
+      const { data:cid, error:cidErr } = await sb.rpc('app__club_id');
+      if(cidErr){ toast('CLUB_ID Fehler: '+cidErr.message, false); return; }
+      CLUB_ID = cid;
 
       // Profil laden
-      let prof=null;
-      try {
-        const { data } = await sb.from('profiles').select('user_id, club_id, role, display_name').eq('user_id', uid).single();
-        prof=data;
-      } catch(e) {}
+      const { data: profRow } = await sb
+        .from('profiles')
+        .select('user_id, club_id, role, display_name, must_set_password, avatar_url')
+        .eq('user_id', uid)
+        .maybeSingle();
+      profile = profRow || { user_id: uid, role: 'user', display_name: (ud?.user?.email||'').split('@')[0], must_set_password:false };
 
-      profile = prof || { user_id: uid, role: 'user', display_name: (ud?.user?.email||'').split('@')[0] };
-
+      const isAdmin = profile?.role==='admin' || profile?.role==='trainer';
+      // Stammdaten
       const [{data:cat},{data:ex},{data:dg},{data:pp}] = await Promise.all([
-        sb.from('exercise_categories').select('id,name').order('name'),
-        sb.from('exercises').select('id,name,category_id').order('name'),
-        sb.from('dogs').select('id,name,breed').order('name'),
-        sb.from('people').select('id,first_name,last_name').order('first_name')
+        sb.from('exercise_categories').select('id,name').eq('club_id', CLUB_ID).order('name'),
+        sb.from('exercises').select('id,name,category_id').eq('club_id', CLUB_ID).order('name'),
+        sb.from('dogs').select('id,name,breed,birthdate,photo_url').eq('club_id', CLUB_ID).order('name'),
+        sb.from('people').select('id,name').eq('club_id', CLUB_ID).order('name')
       ]);
       cats=cat||[]; exercises=ex||[]; dogs=dg||[]; people=pp||[];
 
-      $('#whoami').textContent = ud?.user?.email || '';
-      const firstname = (profile?.display_name || ud?.user?.email?.split('@')[0] || 'User').split(' ')[0];
-      $('#welcome-name').textContent = firstname;
-
-      // Admin Buttons
-      const isAdmin = profile?.role==='admin' || profile?.role==='trainer';
-      $('#go-team').classList.toggle('hidden', !isAdmin);
-      $('#go-admin').classList.toggle('hidden', profile?.role!=='admin');
-
-      // Fill selects defaults
-      fillSel($('#ov-cat'), cats);
-      setDate($('#ov-from'), todayStr());
-      fillSel($('#tr-cat'), cats);
+      // Screens initial füllen
       setDate($('#tr-date'), todayStr());
-      fillSel($('#ov-dog'), dogs); fillSel($('#tr-dog'), dogs);
-      rebuildOverviewExerciseSelect(); rebuildTrainingExerciseList();
+      fillSel($('#tr-cat'), cats); fillSel($('#tr-dog'), dogs);
+      fillSel($('#ov-cat'), cats); fillSel($('#ov-dog'), dogs);
+      fillSel($('#trck-dog'), dogs);
+      fillSel($('#tm-handler'), people, 'id', p=>p.name||('Person '+p.id));
 
-      // Team filters
-      fillSel($('#tm-cat'), cats);
-      setDate($('#tm-from'), todayStr());
-      fillSel($('#tm-handler'), people, 'id', p=>`${p.first_name} ${p.last_name}`);
-      $('#tm-dog').innerHTML = '<option value="all">Alle</option>';
+      // Profil-UI
+      $('#me-name').textContent = profile?.display_name || (ud?.user?.email?.split('@')[0]) || 'User';
+      $('#me-email').textContent = ud?.user?.email || '';
+      $('#me-display').value = profile?.display_name || '';
+      $('#me-avatar').src = profile?.avatar_url || '';
 
-      // Switch to Home
-      hide('#screen-login'); show('#screen-home');
+      // Start/Home
+      $('#screen-login').classList.remove('active');
+      go('home');
+
+      // optional Passwort-Dialog nur bei TRUE
+      if (profile?.must_set_password) { $('#dlg-setpw').showModal(); }
     }
 
-    function setDate(inp, v){ if(inp) inp.value=v; }
-    function fillSel(sel, items, value='id', label='name'){
-      if(!sel) return;
-      const lab = (typeof label==='function') ? label : (x)=>x[label];
-      sel.innerHTML = (items||[]).map(i=>`<option value="${i[value]}">${lab(i)}</option>`).join('');
-    }
-
-    // SESSION RESUME
+    // Session Resume
     sb.auth.getSession().then(async ({data})=>{
-      if(data?.session) await afterLogin(); else goLogin();
+      if(data?.session) await afterLogin(); else { hideAll(); $('#screen-login').classList.add('active'); $('#ttl').textContent='Anmelden'; }
+    });
+    $('#logout-btn')?.addEventListener('click', async ()=>{ await sb.auth.signOut(); hideAll(); $('#screen-login').classList.add('active'); });
+
+    // ===== Training =====
+    let currentInputType = 'eb';
+    $('#mode-change').addEventListener('click', () => {
+      const dlg = $('#dlg-mode');
+      dlg.querySelectorAll('input[name="evalmode"]').forEach(r => r.checked = (r.value === currentInputType));
+      dlg.showModal();
+    });
+    $('#mode-apply').addEventListener('click', (e)=>{
+      e.preventDefault();
+      const dlg = $('#dlg-mode');
+      currentInputType = dlg.querySelector('input[name="evalmode"]:checked')?.value || 'eb';
+      $('#mode-label').textContent = (currentInputType==='tb'?'Trainerbewertung':'Eigenbewertung');
+      $('#ov-mode-label').textContent = (currentInputType==='tb'?'Trainerbewertung':'Eigenbewertung');
+      dlg.close();
+      rebuildTrainingExerciseList();
+    });
+    $('#tr-cat').addEventListener('change', rebuildTrainingExerciseList);
+
+    function rebuildTrainingExerciseList(){
+      const catId = Number($('#tr-cat').value||0);
+      const list = exercises.filter(e=>!catId || e.category_id===catId);
+      const wrap = $('#tr-exlist'); wrap.innerHTML='';
+      list.forEach(ex=>{
+        const block = document.createElement('div');
+        block.className='card tr-card';
+        block.innerHTML = `
+          <div style="font-weight:700">${ex.name}</div>
+          <div class="muted">${currentInputType==='tb'?'Trainerbewertung':'Eigenbewertung'}</div>
+          <div class="rating-pick" data-ex="${ex.id}" data-type="${currentInputType}">
+            <span class="dot r1" data-v="1"></span>
+            <span class="dot r2" data-v="2"></span>
+            <span class="dot r3" data-v="3"></span>
+            <span class="dot r4" data-v="4"></span>
+            <span class="dot r5" data-v="5"></span>
+          </div>
+          <input class="note-input hidden" data-ex="${ex.id}" type="text" placeholder="Notiz (optional)">
+          <button class="note-btn" data-ex="${ex.id}" type="button" style="align-self:flex-start">+ Notiz</button>
+        `;
+        wrap.appendChild(block);
+      });
+      wrap.querySelectorAll('.rating-pick .dot').forEach(dot=>{
+        dot.addEventListener('click', ()=>{
+          const p = dot.closest('.rating-pick');
+          const was = dot.classList.contains('sel');
+          p.querySelectorAll('.dot').forEach(d=>d.classList.remove('sel'));
+          if(!was) dot.classList.add('sel');
+        });
+      });
+      wrap.querySelectorAll('.note-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const id=btn.getAttribute('data-ex'); const input=wrap.querySelector(\`.note-input[data-ex="\${id}"]\`);
+          if(input) input.classList.toggle('hidden');
+        });
+      });
+    }
+
+    $('#tr-save').addEventListener('click', async ()=>{
+      const dogId=$('#tr-dog').value, date=$('#tr-date').value||todayStr();
+      if(!dogId){ toast('Bitte Hund wählen', false); return; }
+      const { data:ud } = await sb.auth.getUser();
+      const uid = ud?.user?.id;
+
+      const entriesMap = new Map();
+      $('#tr-exlist').querySelectorAll('.rating-pick').forEach(p=>{
+        const exId=Number(p.getAttribute('data-ex'));
+        const type=p.getAttribute('data-type');
+        const sel=p.querySelector('.dot.sel');
+        if(!entriesMap.has(exId)) entriesMap.set(exId,{});
+        if(sel){
+          const rating=Number(sel.getAttribute('data-v'));
+          entriesMap.get(exId)[type]=rating;
+        }
+      });
+      $('#tr-exlist').querySelectorAll('.note-input').forEach(i=>{
+        if(i.classList.contains('hidden')) return;
+        const exId=Number(i.getAttribute('data-ex'));
+        if(!entriesMap.has(exId)) entriesMap.set(exId,{});
+        const val=i.value.trim(); if(val) entriesMap.get(exId).note=val;
+      });
+      const entries=[...entriesMap.entries()].map(([exercise_id,o])=>({
+        exercise_id,
+        eb: Number.isFinite(o.eb)? o.eb : null,
+        tb: Number.isFinite(o.tb)? o.tb : null,
+        note: o.note ?? null
+      })).filter(x => x.eb!=null || x.tb!=null || x.note!=null);
+      if(!entries.length){ toast('Bitte mindestens eine Bewertung setzen oder Notiz eingeben', false); return; }
+
+      lock($('#tr-save'), true);
+      const { error } = await sb.from('sessions').insert({
+        club_id: CLUB_ID,
+        user_id: uid,
+        dog_id: dogId,
+        session_date: date,
+        entries_json: entries
+      });
+      lock($('#tr-save'), false);
+      if(error){ toast('Fehler: '+error.message, false); return; }
+      toast('Session gespeichert');
+      $('#tr-exlist').querySelectorAll('.dot.sel').forEach(d=>d.classList.remove('sel'));
+      $('#tr-exlist').querySelectorAll('.note-input').forEach(i=>{ i.value=''; i.classList.add('hidden'); });
+      $('#tr-msg').textContent = \`Gespeichert für \${new Date(date).toLocaleDateString('de-AT')}\`;
     });
 
-    // HOME NAV
-    $('#go-overview').addEventListener('click', ()=>{ openScreen('Übersicht', '#screen-overview'); });
-    $('#go-training').addEventListener('click', ()=>{ openScreen('Training',  '#screen-training'); });
-    $('#go-team').addEventListener('click',     ()=>{ openScreen('Team',      '#screen-team'); });
-    $('#go-admin').addEventListener('click',    ()=>{ openScreen('Verwaltung','#screen-admin'); });
-    $('#btn-home').addEventListener('click', goHome);
-
-    // ========= ÜBERSICHT =========
+    // ===== Übersicht =====
     function rebuildOverviewExerciseSelect(){
       const catId = Number($('#ov-cat').value||0);
       const list = exercises.filter(e=>!catId || e.category_id===catId);
-      $('#ov-ex').innerHTML = '<option value="all">Alle</option>'+ list.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+      $('#ov-ex').innerHTML = '<option value="all">Alle</option>'+ list.map(e=>\`<option value="\${e.id}">\${e.name}</option>\`).join('');
     }
     $('#ov-cat').addEventListener('change', rebuildOverviewExerciseSelect);
+    $('#tab-table').addEventListener('click', ()=>{ $('#tab-table').classList.add('active'); $('#tab-stats').classList.remove('active'); $('#ov-view-table').classList.remove('hidden'); $('#ov-view-stats').classList.add('hidden'); });
+    $('#tab-stats').addEventListener('click', ()=>{ $('#tab-stats').classList.add('active'); $('#tab-table').classList.remove('active'); $('#ov-view-table').classList.add('hidden'); $('#ov-view-stats').classList.remove('hidden'); });
 
-    // EB/TB Umschalter
-    const ebBtn=$('#mode-eb'), tbBtn=$('#mode-tb'), bothBtn=$('#mode-both');
-    [ebBtn, tbBtn, bothBtn].forEach(btn=>{
-      btn?.addEventListener('click', ()=>{
-        [ebBtn,tbBtn,bothBtn].forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        ratingMode = (btn===ebBtn) ? 'eb' : (btn===tbBtn ? 'tb' : 'both');
-      });
-    });
-
-    // Toggle Tabelle/Statistik
-    $('#tab-table').addEventListener('click', ()=>{ $('#tab-table').classList.add('active'); $('#tab-stats').classList.remove('active'); show('#ov-view-table'); hide('#ov-view-stats'); });
-    $('#tab-stats').addEventListener('click', ()=>{ $('#tab-stats').classList.add('active'); $('#tab-table').classList.remove('active'); hide('#ov-view-table'); show('#ov-view-stats'); });
-
-    // Laden
     $('#ov-load').addEventListener('click', async ()=>{
       const dogId = $('#ov-dog').value;
       const catId = Number($('#ov-cat').value||0);
       const from  = $('#ov-from').value || todayStr();
-      const exFilter = $('#ov-ex').value; // 'all' oder id
-
+      const exFilter = $('#ov-ex').value;
       if(!dogId){ toast('Bitte Hund wählen', false); return; }
 
       lock($('#ov-load'), true);
@@ -469,318 +731,463 @@
         });
       });
 
-      buildMatrix(rows);
-      buildStats(rows, sessions, { exFilter, catId });
+      const exListForTable = (exFilter === 'all')
+        ? exercises.filter(e => !catId || e.category_id === catId)
+        : exercises.filter(e => String(e.id) === exFilter);
+
+      const datesForTable = [...new Set((sessions||[]).map(s => s.session_date))].sort();
+
+      buildMatrixFull(datesForTable, exListForTable, rows);
+      buildStats(rows, sessions, { exFilter });
     });
 
-    function buildMatrix(rows){
-      const valueKey = (ratingMode === 'tb') ? 'tb' : 'eb'; // 'both' -> wir zeigen EB
-      const dates = [...new Set(rows.map(r=>r.date))];
-      const exs   = [...new Set(rows.map(r=>r.exercise_name))];
-      const head=$('#ov-head'), body=$('#ov-body');
-      head.innerHTML = '<tr><th>Datum</th>'+ exs.map(n=>`<th>${n}</th>`).join('') + '</tr>';
-      body.innerHTML = dates.map(d=>{
-        const cells = exs.map(name=>{
-          const r = rows.find(x=>x.date===d && x.exercise_name===name);
-          if(!r) return '<td></td>';
+    function buildMatrixFull(dates, exList, rows){
+      const valueKey = (currentInputType === 'tb') ? 'tb' : 'eb';
+      const key = (d, id) => \`\${d}#\${id}\`;
+      const map = new Map();
+      for (const r of rows) map.set(key(r.date, r.exercise_id), r);
+
+      const head = $('#ov-head');
+      head.innerHTML = '<tr><th>Datum</th>' + exList.map(ex => \`<th>\${ex.name}</th>\`).join('') + '</tr>';
+
+      const body = $('#ov-body');
+      body.innerHTML = dates.map(d => {
+        const cells = exList.map(ex => {
+          const r = map.get(key(d, ex.id));
+          if (!r) return '<td></td>';
           const val = r[valueKey];
-          if(!val) return '<td></td>';
-          const cls = COLORS[val]||'';
-          const title = r.note ? `title="${r.note.replace(/"/g,'&quot;')}"` : '';
-          return `<td data-note="${r.note? r.note.replace(/"/g,'&quot;'):''}"><span class="dot ${cls}" ${title}></span></td>`;
+          if (val == null) return '<td></td>';
+          const cls = COLORS[val] || '';
+          const title = r.note ? \`title="\${r.note.replace(/"/g,'&quot;')}"\` : '';
+          return \`<td data-note="\${r.note ? r.note.replace(/"/g,'&quot;') : ''}"><span class="dot \${cls}" \${title}></span></td>\`;
         }).join('');
-        return `<tr><td>${new Date(d).toLocaleDateString('de-AT')}</td>${cells}</tr>`;
+        return \`<tr><td>\${new Date(d).toLocaleDateString('de-AT')}</td>\${cells}</tr>\`;
       }).join('');
-      // Notiz-Klick
-      $('#ov-body').querySelectorAll('td').forEach(td=>{
+
+      body.querySelectorAll('td').forEach(td=>{
         td.addEventListener('click', ()=>{
           const note = td.getAttribute('data-note'); if(note) alert(note);
         });
       });
     }
 
-    function average(arr){ return arr.length? (arr.reduce((a,b)=>a+b,0)/arr.length) : null; }
+    function buildStats(rows, sessions, { exFilter }){
+      const valueKey = (currentInputType === 'tb') ? 'tb' : 'eb';
+      const entries = rows.filter(r => r[valueKey] != null);
+      const avg = arr => arr.length ? (arr.reduce((s,x)=>s+x,0)/arr.length) : null;
+      const fmt = x => (x==null) ? '–' : (Math.round(x*10)/10).toFixed(1);
+      $('#kpi-trainings').textContent = String(sessions.length || 0);
+      $('#kpi-entries').textContent   = String(entries.length || 0);
+      const avgAll = avg(entries.map(r=>r[valueKey]));
+      $('#kpi-avg-cat').textContent = fmt(avgAll);
+      $('#kpi-avg-ex').textContent  = fmt(avgAll);
 
-    function buildStats(rows, sessions, { exFilter, catId }){
-      // KPIs
-      const trainDates = [...new Set((sessions||[]).map(s=>s.session_date))];
-      $('#kpi-trainings').textContent = String(trainDates.length);
-      $('#kpi-entries').textContent   = String(rows.length);
+      const byDate = new Map();
+      entries.forEach(r => { if (!byDate.has(r.date)) byDate.set(r.date, []); byDate.get(r.date).push(r[valueKey]); });
+      const ds = [...byDate.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([d,vals]) => ({ x: new Date(d), y: avg(vals) }));
 
-      const ebVals = rows.map(r=>r.eb).filter(v=>v!=null);
-      const tbVals = rows.map(r=>r.tb).filter(v=>v!=null);
-      const avgCatEB = average(ebVals), avgCatTB = average(tbVals);
-      $('#kpi-avg-cat').textContent = [
-        avgCatEB!=null ? `EB ${avgCatEB.toFixed(2)}` : 'EB –',
-        avgCatTB!=null ? ` / TB ${avgCatTB.toFixed(2)}` : ' / TB –'
-      ].join('');
+      const wrap = $('#chart-wrap');
+      const cvs  = $('#chart-line');
+      const ctx  = cvs.getContext('2d');
 
-      if (exFilter !== 'all') {
-        const ebOne = rows.filter(r=>String(r.exercise_id)===exFilter).map(r=>r.eb).filter(v=>v!=null);
-        const tbOne = rows.filter(r=>String(r.exercise_id)===exFilter).map(r=>r.tb).filter(v=>v!=null);
-        const aEB = average(ebOne), aTB = average(tbOne);
-        $('#kpi-avg-ex').textContent = [
-          aEB!=null ? `EB ${aEB.toFixed(2)}` : 'EB –',
-          aTB!=null ? ` / TB ${aTB.toFixed(2)}` : ' / TB –'
-        ].join('');
-      } else {
-        $('#kpi-avg-ex').textContent = '–';
-      }
+      const pxPerPoint = 80;
+      const width = Math.max(600, (ds.length || 6) * pxPerPoint);
+      cvs.style.width = width + 'px';
 
-      // selten / alt / schwach (TB bevorzugt, sonst EB)
-      const byEx = new Map();
-      rows.forEach(r=>{
-        if(!byEx.has(r.exercise_name)) byEx.set(r.exercise_name,{count:0,last:null,eb:[],tb:[]});
-        const o = byEx.get(r.exercise_name);
-        o.count++; o.last = r.date;
-        if(r.eb!=null) o.eb.push(r.eb);
-        if(r.tb!=null) o.tb.push(r.tb);
-      });
-      const arr = [...byEx.entries()].map(([name,v])=>({
-        name, count:v.count, last:v.last,
-        avgEB: v.eb.length ? average(v.eb) : null,
-        avgTB: v.tb.length ? average(v.tb) : null
-      }));
-      const rare = arr.length? arr.slice().sort((a,b)=>a.count-b.count)[0]:null;
-      const old  = arr.length? arr.slice().sort((a,b)=> new Date(a.last)-new Date(b.last))[0]:null;
-      const weak = arr.length? arr.slice().sort((a,b)=>{
-        const ax = a.avgTB ?? a.avgEB ?? 9;
-        const bx = b.avgTB ?? b.avgEB ?? 9;
-        return ax - bx;
-      })[0]:null;
-      $('#stats-rare').innerHTML = `
-        <div><strong>Seltenste Übung:</strong> ${rare? `${rare.name} (${rare.count}×)`: '–'}</div>
-        <div><strong>Am längsten nicht gemacht:</strong> ${old? `${old.name} (seit ${new Date(old.last).toLocaleDateString('de-AT')})`:'–'}</div>
-        <div><strong>Schlechteste Übung:</strong> ${weak? `${weak.name} (Ø ${(weak.avgTB ?? weak.avgEB).toFixed(2)})`:'–'}</div>
-      `;
-
-      // Chart-Daten (zwei Datensätze EB/TB)
-      let dsEB=[], dsTB=[];
-      if (exFilter!=='all') {
-        const rowsOne = rows.filter(r=>String(r.exercise_id)===exFilter);
-        rowsOne.forEach(r=>{
-          if(r.eb!=null) dsEB.push({ x:new Date(r.date), y:r.eb, session_id:r.session_id, note:r.note, exercise_id:r.exercise_id, exercise_name:r.exercise_name });
-          if(r.tb!=null) dsTB.push({ x:new Date(r.date), y:r.tb, session_id:r.session_id, note:r.note, exercise_id:r.exercise_id, exercise_name:r.exercise_name });
-        });
-      } else {
-        const byDateEB = new Map(), byDateTB = new Map();
-        rows.forEach(r=>{
-          const d=r.date;
-          if(r.eb!=null){ if(!byDateEB.has(d)) byDateEB.set(d,[]); byDateEB.get(d).push(r.eb); }
-          if(r.tb!=null){ if(!byDateTB.has(d)) byDateTB.set(d,[]); byDateTB.get(d).push(r.tb); }
-        });
-        [...byDateEB.entries()].forEach(([d,vals])=> dsEB.push({ x:new Date(d), y:average(vals), date:d }));
-        [...byDateTB.entries()].forEach(([d,vals])=> dsTB.push({ x:new Date(d), y:average(vals), date:d }));
-      }
-
-      renderLineChartDual(dsEB, dsTB);
-
-      // Klick auf Punkt -> unten Tabelle/Notiz
-      lineChart.options.onClick = (_, elements)=>{
-        if(!elements.length) return;
-        const el = elements[0];
-        const dataset = lineChart.data.datasets[el.datasetIndex];
-        const dp = dataset.data[el.index];
-        renderTrainingTable(dp.session_id, exFilter!=='all', exFilter);
-        $('#ov-train-table').scrollIntoView({ behavior:'smooth', block:'start' });
-      };
-      lineChart.update();
-    }
-
-    function renderLineChartDual(dsEB, dsTB){
-      const ctx = document.getElementById('chart-line').getContext('2d');
-      if(lineChart) lineChart.destroy();
-      lineChart = new window.Chart(ctx, {
+      if (window.lineChart) { window.lineChart.destroy(); window.lineChart = null; }
+      window.lineChart = new window.Chart(ctx, {
         type: 'line',
-        data: {
-          datasets: [
-            { label:'EB', data: dsEB, parsing:false, spanGaps:true, pointRadius:4, tension:0.25 },
-            { label:'TB', data: dsTB, parsing:false, spanGaps:true, pointRadius:4, tension:0.25 }
-          ]
-        },
+        data: { datasets: [{ label:(valueKey==='eb'?'EB':'TB'), data: ds, parsing:false, spanGaps:true, pointRadius:3, tension:0.25 }]},
         options: {
-          responsive:true, maintainAspectRatio:false,
+          responsive:false, maintainAspectRatio:false, animation:false,
+          events: ['mousemove','mouseout','click','touchstart','touchmove','touchend'],
           scales: {
             x:{ type:'time', time:{ unit:'day' } },
-            y:{ suggestedMin:1, suggestedMax:5, ticks:{ stepSize:1 } }
+            y:{ min:1, max:5, ticks:{ stepSize:1 } }
           },
-          plugins: {
-            legend:{ position:'top' },
-            tooltip:{ callbacks:{ label:(ctx)=>` ${ctx.dataset.label}: ${typeof ctx.raw.y==='number' ? ctx.raw.y.toFixed(2) : ctx.raw.y}` } }
-          }
+          interaction:{ mode:'nearest', intersect:false },
+          plugins: { legend:{ position:'top' }, tooltip:{ enabled:true } }
         }
       });
-    }
-
-    function renderTrainingTable(sessionId, singleExercise, exFilter){
-      const s = (sessionsCache||[]).find(x=>x.id===sessionId);
+      const stop = e => { e.preventDefault(); e.stopPropagation(); };
+      ['wheel','gesturestart','gesturechange','gestureend','touchstart','touchmove','touchend','pointerdown','pointermove'].forEach(ev=>{
+        cvs.addEventListener(ev, stop, { passive:false });
+      });
+      // Details-Tabelle (einfacher Dump)
       const tbody = $('#ov-train-body');
-      tbody.innerHTML='';
-      if(!s){ tbody.innerHTML='<tr><td colspan="4">(keine Daten)</td></tr>'; return; }
-      const exById = new Map(exercises.map(e=>[e.id,e.name]));
-      (s.entries_json||[]).forEach(en=>{
-        const name = exById.get(en.exercise_id)||('Übung '+en.exercise_id);
-        const note = en.note||'';
-        const eb = en.eb ?? '—'; const tb = en.tb ?? '—';
-        tbody.insertAdjacentHTML('beforeend', `<tr><td>${name}</td><td>${eb}</td><td>${tb}</td><td>${note? note.replace(/</g,'&lt;'):'—'}</td></tr>`);
-      });
-      if(singleExercise){
-        const en = (s.entries_json||[]).find(e=> String(e.exercise_id)===String(exFilter));
-        if(en?.note) alert(en.note);
-      }
+      tbody.innerHTML = rows.map(r=>\`<tr><td>\${r.exercise_name}</td><td>\${r.eb??''}</td><td>\${r.tb??''}</td><td>\${(r.note||'').replace(/</g,'&lt;')}</td></tr>\`).join('');
     }
 
-    // ========= TRAINING =========
-    function rebuildTrainingExerciseList(){
-      const canTB = profile?.role === 'admin' || profile?.role === 'trainer';
-      const catId = Number($('#tr-cat').value||0);
-      const list = exercises.filter(e=>!catId || e.category_id===catId);
-      const wrap = $('#tr-exlist'); wrap.innerHTML='';
-      list.forEach(ex=>{
-        const block = document.createElement('div');
-        block.className='card'; block.style.width='330px';
-        block.innerHTML = `
-          <div style="font-weight:600;margin-bottom:6px">${ex.name}</div>
-
-          <div class="muted" style="margin-bottom:4px">Eigenbewertung</div>
-          <div class="rating-pick" data-ex="${ex.id}" data-type="eb">
-            <span class="dot r1" data-v="1" title="1"></span>
-            <span class="dot r2" data-v="2" title="2"></span>
-            <span class="dot r3" data-v="3" title="3"></span>
-            <span class="dot r4" data-v="4" title="4"></span>
-            <span class="dot r5" data-v="5" title="5"></span>
-          </div>
-
-          ${canTB ? `
-          <div class="muted" style="margin:8px 0 4px">Trainerbewertung</div>
-          <div class="rating-pick" data-ex="${ex.id}" data-type="tb">
-            <span class="dot r1" data-v="1" title="1"></span>
-            <span class="dot r2" data-v="2" title="2"></span>
-            <span class="dot r3" data-v="3" title="3"></span>
-            <span class="dot r4" data-v="4" title="4"></span>
-            <span class="dot r5" data-v="5" title="5"></span>
-          </div>
-          `:''}
-
-          <div class="mt8">
-            <button class="note-btn" data-ex="${ex.id}" type="button">+ Notiz</button>
-            <input class="note-input hidden" data-ex="${ex.id}" type="text" placeholder="Notiz" style="width:100%;margin-top:8px">
-          </div>
-        `;
-        wrap.appendChild(block);
-      });
-      wrap.querySelectorAll('.rating-pick .dot').forEach(dot=>{
-        dot.addEventListener('click', ()=>{
-          const p=dot.parentElement; p.querySelectorAll('.dot').forEach(d=>d.classList.remove('sel')); dot.classList.add('sel');
-        });
-      });
-      wrap.querySelectorAll('.note-btn').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const id=btn.getAttribute('data-ex'); const input=wrap.querySelector(`.note-input[data-ex="${id}"]`);
-          if(input) input.classList.toggle('hidden');
-        });
-      });
-    }
-    $('#tr-cat').addEventListener('change', rebuildTrainingExerciseList);
-
-    $('#tr-save').addEventListener('click', async ()=>{
-      const dogId=$('#tr-dog').value, date=$('#tr-date').value||todayStr();
-      if(!dogId){ toast('Bitte Hund wählen', false); return; }
-      const entriesMap = new Map(); // exercise_id -> {eb?, tb?, note?}
-      $('#tr-exlist').querySelectorAll('.rating-pick').forEach(p=>{
-        const exId=Number(p.getAttribute('data-ex'));
-        const type=p.getAttribute('data-type'); // 'eb' | 'tb'
-        const sel=p.querySelector('.dot.sel'); if(!sel) return;
-        const rating=Number(sel.getAttribute('data-v'));
-        if(!entriesMap.has(exId)) entriesMap.set(exId,{});
-        entriesMap.get(exId)[type]=rating;
-      });
-      $('#tr-exlist').querySelectorAll('.note-input').forEach(i=>{
-        if(i.classList.contains('hidden')) return;
-        const exId=Number(i.getAttribute('data-ex'));
-        if(!entriesMap.has(exId)) entriesMap.set(exId,{});
-        const val=i.value.trim(); if(val) entriesMap.get(exId).note=val;
-      });
-      const entries=[...entriesMap.entries()].map(([exercise_id,o])=>({
-        exercise_id,
-        eb: Number.isFinite(o.eb)? o.eb : null,
-        tb: Number.isFinite(o.tb)? o.tb : null,
-        note: o.note ?? null
-      }));
-      if(!entries.length){ toast('Bitte mindestens eine Bewertung setzen', false); return; }
-
-      lock($('#tr-save'), true);
-      const { error } = await sb.from('sessions').insert({
-        dog_id: dogId, session_date: date, entries_json: entries, notes: null, location: null
-      });
-      lock($('#tr-save'), false);
-      if(error){ toast('Fehler: '+error.message, false); return; }
-      toast('Session gespeichert');
-      // Reset
-      $('#tr-exlist').querySelectorAll('.dot.sel').forEach(d=>d.classList.remove('sel'));
-      $('#tr-exlist').querySelectorAll('.note-input').forEach(i=>{ i.value=''; i.classList.add('hidden'); });
-    });
-
-    // ========= TEAM (Admin) =========
+    // ===== Team =====
     $('#tm-handler').addEventListener('change', async ()=>{
-      // Optional: Hunde des Handlers laden (hier simple: alle Hunde)
       fillSel($('#tm-dog'), [{id:'all', name:'Alle'}, ...dogs], 'id', 'name');
     });
-    $('#tm-cat').addEventListener('change', ()=>{
-      const catId = Number($('#tm-cat').value||0);
-      const list = exercises.filter(e=>!catId || e.category_id===catId);
-      $('#tm-ex').innerHTML = '<option value="all">Alle</option>'+ list.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
-    });
-    $('#tm-load').addEventListener('click', async ()=>{
-      const dogId = $('#tm-dog').value; const from=$('#tm-from').value||todayStr();
-      const catId = Number($('#tm-cat').value||0); const exFilter=$('#tm-ex').value;
-      const { data:sessions, error } = await sb
-        .from('sessions').select('id,session_date,entries_json,dog_id')
-        .gte('session_date', from).order('session_date',{ascending:true}).limit(1000);
-      if(error){ toast('Fehler: '+error.message, false); return; }
-      const exById = new Map(exercises.map(e=>[e.id,e]));
-      const rows=[]; (sessions||[]).forEach(s=>{
-        if(dogId!=='all' && String(s.dog_id)!==dogId) return;
-        (s.entries_json||[]).forEach(en=>{
-          const ex=exById.get(en.exercise_id); if(!ex) return;
-          if(catId && ex.category_id!==catId) return;
-          if(exFilter!=='all' && String(en.exercise_id)!==exFilter) return;
-          rows.push({date:s.session_date, exercise_name: ex.name, eb:en.eb??null, tb:en.tb??null});
-        });
-      });
-      $('#tm-head').innerHTML='<tr><th>Datum</th><th>Übung</th><th>EB</th><th>TB</th></tr>';
-      $('#tm-body').innerHTML = rows.map(r=>`<tr><td>${new Date(r.date).toLocaleDateString('de-AT')}</td><td>${r.exercise_name}</td><td>${r.eb??'—'}</td><td>${r.tb??'—'}</td></tr>`).join('') || '<tr><td colspan="4">(keine Daten)</td></tr>';
-    });
 
-    // ========= ADMIN =========
-    $('#ad-invite').addEventListener('click', async ()=>{
-      const email=$('#ad-email').value.trim(), first=$('#ad-first').value.trim(), last=$('#ad-last').value.trim();
-      $('#ad-msg').textContent='';
-      if(!email){ $('#ad-msg').textContent='Bitte E-Mail eingeben.'; return; }
-      // Magic Link Einladung
-      const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: window.location.origin } });
-      if(error){ $('#ad-msg').textContent='Fehler: '+error.message; return; }
-      // Optional: Person vormerken
-      // await sb.from('people').insert({ first_name:first||null, last_name:last||null, email:email });
-      $('#ad-msg').textContent='Einladung gesendet.';
+    // ===== Verwaltung: Einladung + Dogs + Zuordnung =====
+    document.getElementById('ad-invite').addEventListener('click', async () => {
+      const btn   = document.getElementById('ad-invite');
+      const elMsg = document.getElementById('ad-msg');
+      const email = document.getElementById('ad-email').value.trim().toLowerCase();
+      const fullname = document.getElementById('ad-fullname').value.trim();
+      const role = document.getElementById('ad-role').value;
+      const COOLDOWN_SEC = 90;
+      const key = 'invite_last_'+email;
+
+      elMsg.textContent = '';
+      if (!email) { elMsg.textContent = 'Bitte E-Mail eingeben.'; return; }
+      if (!role)  { elMsg.textContent = 'Bitte Rolle wählen.'; return; }
+      if (!CLUB_ID) { elMsg.textContent = 'CLUB_ID nicht geladen.'; return; }
+
+      const now = Date.now();
+      const last = Number(localStorage.getItem(key) || 0);
+      if (now - last < COOLDOWN_SEC*1000) {
+        const rest = Math.ceil((COOLDOWN_SEC*1000 - (now-last))/1000);
+        elMsg.textContent = \`Bitte kurz warten (\${rest}s), bevor du erneut einlädst.\`;
+        return;
+      }
+
+      btn.disabled = true;
+      try {
+        let person_id = null;
+        if (fullname) {
+          try {
+            const { data: personRow } = await sb
+              .from('people')
+              .insert({ id: crypto.randomUUID(), club_id: CLUB_ID, name: fullname, email })
+              .select('id')
+              .single();
+            person_id = personRow?.id ?? person_id;
+          } catch {
+            const { data: existing } = await sb
+              .from('people')
+              .select('id')
+              .eq('club_id', CLUB_ID)
+              .eq('email', email)
+              .maybeSingle();
+            person_id = existing?.id ?? null;
+          }
+        }
+
+        try { await sb.from('pending_invites').insert({ email, role, person_id, club_id: CLUB_ID }); }
+        catch (e) { if (!(e && (e.code === '23505' || e.message?.includes('duplicate')))) throw e; }
+
+        const { error: mailErr } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin }});
+        if (mailErr) {
+          if ((mailErr.status === 429) || /Too Many Requests|Throttler/i.test(mailErr.message||'')) {
+            elMsg.textContent = 'Zu viele Anfragen. Versuche es später erneut.';
+            localStorage.setItem(key, String(Date.now()));
+          } else throw mailErr;
+          return;
+        }
+
+        localStorage.setItem(key, String(Date.now()));
+        elMsg.textContent = 'Einladung gespeichert und Magic Link gesendet.';
+      } catch (err) { elMsg.textContent = 'Fehler: ' + (err?.message || String(err)); }
+      finally { setTimeout(()=>{ btn.disabled = false; }, 1500); }
     });
 
     async function renderAdminDogs(){
-      const { data } = await sb.from('dogs').select('id,name,breed').order('name');
-      $('#ad-dog-list').innerHTML = (data||[]).map(d=>`<li>${d.name}${d.breed? ' ('+d.breed+')':''}</li>`).join('') || '<li>(keine Hunde)</li>';
+      const ul = $('#ad-dog-list');
+      ul.innerHTML = (dogs||[]).map(d=>\`<li>\${(d.name||'Hund '+d.id).replace(/</g,'&lt;')} <span class="muted">\${d.breed||''}</span></li>\`).join('') || '<i>(keine Hunde)</i>';
     }
     $('#ad-dog-add').addEventListener('click', async ()=>{
-      const name=$('#ad-dog-name').value.trim(); const breed=$('#ad-dog-breed').value.trim()||null;
-      if(!name){ toast('Hundename fehlt', false); return; }
-      const { error } = await sb.from('dogs').insert({ name, breed });
+      const name = $('#ad-dog-name').value.trim();
+      const breed= $('#ad-dog-breed').value.trim() || null;
+      const birth= $('#ad-dog-birth').value || null;
+      if(!name){ toast('Name fehlt', false); return; }
+      const { error } = await sb.from('dogs').insert({ id: crypto.randomUUID(), club_id: CLUB_ID, name, breed, birthdate: birth });
       if(error){ toast('Fehler: '+error.message, false); return; }
-      $('#ad-dog-name').value=''; $('#ad-dog-breed').value='';
-      renderAdminDogs(); toast('Hund hinzugefügt');
+      $('#ad-dog-name').value=''; $('#ad-dog-breed').value=''; $('#ad-dog-birth').value='';
+      const { data:dg } = await sb.from('dogs').select('id,name,breed,birthdate,photo_url').eq('club_id', CLUB_ID).order('name');
+      dogs = dg||[]; await renderAdminDogs();
+      toast('Hund hinzugefügt');
     });
 
-    // Initial state for session resume
-    $('#btn-home').addEventListener('click', goHome);
-    // End
+    // Personen ↔ Hunde (siehe frühere Version) – Platzhalter minimal:
+    let _adPeopleDogs = new Map();
+    async function adminLoadPeople(){ const { data:pp } = await sb.from('people').select('id,name').eq('club_id', CLUB_ID).order('name'); people = pp||[]; }
+    async function adminLoadPeopleDogs(){
+      const { data:rows } = await sb.from('people_dogs').select('person_id,dog_id').limit(10000);
+      const map = new Map(); (rows||[]).forEach(r=>{ if(!map.has(r.person_id)) map.set(r.person_id,new Set()); map.get(r.person_id).add(r.dog_id); });
+      _adPeopleDogs = map;
+    }
+    function renderAdminPeople(){
+      const tb = $('#ad-people-body');
+      tb.innerHTML = (people||[]).map(p=>\`<tr><td class="muted" style="font-size:12px">\${String(p.id).slice(0,6)}…</td><td>\${(p.name||('Person '+p.id)).replace(/</g,'&lt;')}</td><td><button data-act="dogs" data-id="\${p.id}">Hunde zuordnen</button></td></tr>\`).join('') || '<tr><td colspan="3">(keine Personen)</td></tr>';
+    }
+    $('#ad-people-body').addEventListener('click', (ev) => { const btn = ev.target.closest('button[data-act="dogs"]'); if (!btn) return; openAssignDialog(btn.getAttribute('data-id')); });
+    function openAssignDialog(personId) {
+      $('#assign-person-id').value = String(personId);
+      const set = _adPeopleDogs.get(String(personId)) || new Set();
+      const list = $('#assign-dogs-list');
+      list.innerHTML = (dogs||[]).map(d => { const chk = set.has(d.id) ? 'checked' : ''; return \`<label style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" class="chk-dog" value="\${d.id}" \${chk}><span>\${(d.name||'Hund '+d.id).replace(/</g,'&lt;')}</span></label>\`; }).join('') || '<i>(keine Hunde)</i>';
+      $('#dlg-assign').showModal();
+    }
+    $('#btn-assign-save').addEventListener('click', async () => {
+      const pid = $('#assign-person-id').value;
+      const chosen = Array.from(document.querySelectorAll('#assign-dogs-list .chk-dog')).filter(i => i.checked).map(i => i.value);
+      const current = _adPeopleDogs.get(String(pid)) || new Set();
+      const toAdd = chosen.filter(id => !current.has(id));
+      const toDel = Array.from(current).filter(id => !chosen.includes(id));
+      if (toAdd.length) {
+        const rows = toAdd.map(dogId => ({ person_id: pid, dog_id: dogId, relationship: 'member' }));
+        const { error } = await sb.from('people_dogs').insert(rows);
+        if (error) { toast('Fehler Zuordnung: '+error.message, false); return; }
+      }
+      for (const dogId of toDel) {
+        const { error } = await sb.from('people_dogs').delete().match({ person_id: pid, dog_id: dogId });
+        if (error) { toast('Fehler Entfernen: '+error.message, false); return; }
+      }
+      $('#dlg-assign').close(); await adminLoadPeopleDogs(); toast('Zuweisungen aktualisiert');
+    });
+    async function adminInitFull() { await Promise.all([renderAdminDogs(), adminLoadPeople(), adminLoadPeopleDogs()]); renderAdminPeople(); }
+
+    // ===== Profil: Tabs & Uploads =====
+    $('#tab-me').addEventListener('click', ()=>{ $('#tab-me').classList.add('active'); $('#tab-dogs').classList.remove('active'); $('#pane-me').style.display='block'; $('#pane-dogs').style.display='none'; });
+    $('#tab-dogs').addEventListener('click', ()=>{ $('#tab-dogs').classList.add('active'); $('#tab-me').classList.remove('active'); $('#pane-dogs').style.display='block'; $('#pane-me').style.display='none'; });
+
+    // Profil speichern
+    $('#me-save').addEventListener('click', async ()=>{
+      const name = $('#me-display').value.trim();
+      const { data:ud } = await sb.auth.getUser(); const uid = ud?.user?.id;
+      const { error } = await sb.from('profiles').update({ display_name: name }).eq('user_id', uid);
+      if (error) { toast('Fehler: '+error.message, false); return; }
+      toast('Profil gespeichert'); $('#me-name').textContent = name||$('#me-name').textContent;
+    });
+
+    // Passwort ändern
+    $('#me-pass').addEventListener('click', async ()=>{
+      const p = prompt('Neues Passwort (min. 8 Zeichen):'); if(!p || p.length<8) return;
+      const { error } = await sb.auth.updateUser({ password: p });
+      if (error) { toast('Fehler: '+error.message, false); return; }
+      toast('Passwort aktualisiert');
+    });
+
+    // Avatar hochladen (Storage: avatars/USERID.jpg)
+    $('#me-avatar-upload').addEventListener('click', async ()=>{
+      const file = $('#me-avatar-file').files?.[0]; if(!file){ toast('Bitte Bild auswählen', false); return; }
+      const { data:ud } = await sb.auth.getUser(); const uid = ud?.user?.id;
+      // Clientseitig kleinrechnen (max 512px)
+      const resized = await resizeImage(file, 512);
+      const path = \`\${uid}.jpg\`;
+      const { error:upErr } = await sb.storage.from('avatars').upload(path, resized, { upsert:true, contentType:'image/jpeg' });
+      if (upErr) { toast('Upload-Fehler (Bucket vorhanden?): '+upErr.message, false); return; }
+      const { data:pub } = sb.storage.from('avatars').getPublicUrl(path);
+      const url = pub?.publicUrl;
+      const { error:pe } = await sb.from('profiles').update({ avatar_url:url }).eq('user_id', uid);
+      if (pe) { toast('Profil-Update fehlgeschlagen: '+pe.message, false); return; }
+      $('#me-avatar').src = url; toast('Avatar gespeichert');
+    });
+
+    // Meine Hunde rendern
+    function renderMyDogs(){
+      const wrap = $('#my-dogs');
+      wrap.innerHTML = (dogs||[]).map(d=>`
+        <div class="card" style="flex:1 1 260px">
+          <div class="row">
+            <div style="width:72px;height:72px;background:#eee;border-radius:10px;overflow:hidden">
+              <img src="${d.photo_url||''}" alt="" style="width:72px;height:72px;object-fit:cover">
+            </div>
+            <div>
+              <h3 style="margin:0">${(d.name||'Hund '+d.id).replace(/</g,'&lt;')}</h3>
+              <div class="muted">${d.breed||''} ${d.birthdate?('· '+d.birthdate):''}</div>
+              <div class="row mt8"><input type="file" data-dog="${d.id}" class="dog-file" accept="image/*"><button class="ghost dog-upload" data-dog="${d.id}">Foto hochladen</button></div>
+            </div>
+          </div>
+        </div>
+      `).join('') || '<i>(keine Hunde)</i>';
+
+      // Upload Handler
+      wrap.querySelectorAll('.dog-upload').forEach(btn=>{
+        btn.addEventListener('click', async ()=>{
+          const dogId = btn.getAttribute('data-dog');
+          const file = wrap.querySelector(\`input.dog-file[data-dog="\${dogId}"]\`)?.files?.[0];
+          if(!file){ toast('Bitte Bild auswählen', false); return; }
+          const resized = await resizeImage(file, 512);
+          const path = \`\${dogId}.jpg\`;
+          const { error:upErr } = await sb.storage.from('dog-photos').upload(path, resized, { upsert:true, contentType:'image/jpeg' });
+          if (upErr) { toast('Upload-Fehler (Bucket dog-photos vorhanden?): '+upErr.message, false); return; }
+          const { data:pub } = sb.storage.from('dog-photos').getPublicUrl(path);
+          const url = pub?.publicUrl;
+          const { error:de } = await sb.from('dogs').update({ photo_url:url }).eq('id', dogId);
+          if (de) { toast('Hund speichern fehlgeschlagen: '+de.message, false); return; }
+          toast('Foto gespeichert');
+          const { data:dg } = await sb.from('dogs').select('id,name,breed,birthdate,photo_url').eq('club_id', CLUB_ID).order('name');
+          dogs = dg||[]; renderMyDogs();
+        });
+      });
+    }
+
+    async function resizeImage(file, maxSize){
+      const img = await blobToImage(file);
+      const canvas = document.createElement('canvas');
+      const ratio = Math.min(1, maxSize / Math.max(img.width, img.height));
+      canvas.width = Math.round(img.width * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise(res=>canvas.toBlob(res,'image/jpeg',0.8));
+      return blob;
+    }
+    function blobToImage(file){ return new Promise((res)=>{ const img=new Image(); img.onload=()=>res(img); img.src=URL.createObjectURL(file); }); }
+
+    // ===== Passwort-Dialog (nur beim allerersten Login) =====
+    $('#pw-save').addEventListener('click', async () => {
+      const p1 = ($('#pw1').value||'').trim();
+      const p2 = ($('#pw2').value||'').trim();
+      const msg = $('#pw-msg');
+      msg.textContent = '';
+      if (p1.length < 8) { msg.textContent = 'Mindestens 8 Zeichen.'; return; }
+      if (p1 !== p2) { msg.textContent = 'Passwörter stimmen nicht überein.'; return; }
+      try {
+        const { error: ue } = await sb.auth.updateUser({ password: p1 });
+        if (ue) throw ue;
+        const { data:ud } = await sb.auth.getUser();
+        const uid = ud?.user?.id;
+        if (uid) {
+          const { error: pe } = await sb.from('profiles').update({ must_set_password: false }).eq('user_id', uid);
+          if (pe) throw pe;
+        }
+        $('#dlg-setpw').close(); toast('Passwort gespeichert');
+      } catch (e) { msg.textContent = 'Fehler: ' + (e?.message || String(e)); }
+    });
+    $('#pw-cancel').addEventListener('click', () => { $('#dlg-setpw').close(); toast('Bitte bald Passwort setzen', false); });
+
+    // ===== Feedback =====
+    $('#btn-feedback').addEventListener('click', ()=>{ $('#dlg-feedback').showModal(); });
+    $('#feedback-send').addEventListener('click', (e)=>{
+      e.preventDefault();
+      const txt = encodeURIComponent($('#feedback-text').value.trim());
+      window.location.href = \`mailto:info@hstc.at?subject=\${encodeURIComponent('Feedback HSTC-App')}&body=\${txt}\`;
+      $('#dlg-feedback').close();
+    });
+
+    // ===== Tracks / Fährte =====
+    let map, poly, watchId=null, trackPoints=[], trackMarks=[];
+    const MIN_DIST_M = 5; const MIN_TIME_S = 3; const START_ACC_M = 15;
+    $('#thres-dist').textContent = String(MIN_DIST_M); $('#thres-time').textContent = String(MIN_TIME_S);
+
+    function initMap(){
+      if (map) return;
+      map = L.map('map'); // center später nach erster GPS Position
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+      poly = L.polyline([], { color: '#d12a2a', weight: 4 }).addTo(map);
+    }
+
+    function updateGpsUI(acc){
+      $('#gps-acc').textContent = acc? acc.toFixed(1) : '–';
+      const clamped = Math.max(5, Math.min(50, acc||50)); // 5..50 m
+      const pct = (1 - (clamped-5)/(50-5)) * 100; // 0..100 (gut)
+      $('#gps-needle').style.left = pct + '%';
+      $('#btn-start').disabled = !(acc && acc <= START_ACC_M);
+    }
+
+    function haversine(a,b){
+      const toRad = x=>x*Math.PI/180;
+      const R=6371000;
+      const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
+      const s1=Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+      return 2*R*Math.asin(Math.sqrt(s1));
+    }
+
+    function onPosition(pos){
+      const { latitude, longitude, accuracy } = pos.coords;
+      updateGpsUI(accuracy);
+      if(!map) return;
+      if(trackPoints.length===0){ map.setView([latitude, longitude], 17); }
+      const now = Date.now();
+      const pt = { lat: latitude, lng: longitude, t: new Date().toISOString(), acc: accuracy||null, ms: now };
+      // Datensparsam: nur speichern, wenn Distanz oder Zeitschwelle überschritten
+      const last = trackPoints[trackPoints.length-1];
+      const distOk = !last || haversine(last, pt) >= MIN_DIST_M;
+      const timeOk = !last || (pt.ms - last.ms) >= MIN_TIME_S*1000;
+      if (distOk || timeOk) {
+        trackPoints.push(pt);
+        poly.addLatLng([pt.lat, pt.lng]);
+      }
+    }
+
+    function onError(err){ console.warn('GPS Error', err); toast('GPS Fehler: '+(err.message||err.code), false); }
+
+    $('#btn-start').addEventListener('click', ()=>{
+      initMap(); trackPoints=[]; trackMarks=[]; poly.setLatLngs([]); $('#btn-stop').disabled=false; $('#btn-mark').disabled=false;
+      watchId = navigator.geolocation.watchPosition(onPosition, onError, { enableHighAccuracy:true, maximumAge:1000, timeout:10000 });
+      toast('Aufzeichnung gestartet');
+    });
+    $('#btn-stop').addEventListener('click', async ()=>{
+      if (watchId!=null) { navigator.geolocation.clearWatch(watchId); watchId=null; }
+      $('#btn-stop').disabled=true; $('#btn-mark').disabled=true;
+      // Speichern
+      if (!trackPoints.length) { toast('Keine Punkte aufgezeichnet', false); return; }
+      const dogId = $('#trck-dog').value; if(!dogId){ toast('Bitte Hund wählen', false); return; }
+      const name = $('#trck-name').value.trim() || null;
+      const note = $('#trck-note').value.trim() || null;
+      // Minimal speichern: lat,lng,t,acc
+      const coords = trackPoints.map(p=>({lat:+p.lat.toFixed(6),lng:+p.lng.toFixed(6),t:p.t,acc: p.acc? +p.acc.toFixed(1):null}));
+      const dist = trackDistance(trackPoints);
+      const dur = Math.round((new Date(trackPoints.at(-1).t) - new Date(trackPoints[0].t))/1000);
+      const { data:ud } = await sb.auth.getUser(); const uid = ud?.user?.id;
+      const { data:ins, error } = await sb.from('tracks').insert({ club_id:CLUB_ID, user_id:uid, dog_id:dogId, name, notes:note, coords, duration_sec:dur, distance_m:Math.round(dist) }).select('id').single();
+      if (error) { toast('Speichern fehlgeschlagen: '+error.message, false); return; }
+      const trackId = ins?.id;
+      // Marken speichern
+      if (trackMarks.length && trackId) {
+        const rows = trackMarks.map(m=>({ track_id: trackId, kind:'item', lat:m.lat, lng:m.lng, t:m.t, label:m.label||null }));
+        const { error:me } = await sb.from('track_marks').insert(rows);
+        if (me) { console.warn('Marken Fehler', me); }
+      }
+      toast('Fährte gespeichert'); await loadRecentTracks();
+    });
+
+    $('#btn-mark').addEventListener('click', ()=>{
+      if (!map) return;
+      map.once('click', (e)=>{
+        const c = e.latlng;
+        L.marker([c.lat, c.lng], { title:'X' }).addTo(map);
+        trackMarks.push({ lat:+c.lat.toFixed(6), lng:+c.lng.toFixed(6), t:new Date().toISOString(), label:'X' });
+        toast('„X“ gesetzt');
+      });
+      toast('Tippe in die Karte, um „X“ zu setzen');
+    });
+
+    function trackDistance(pts){
+      let d=0; for(let i=1;i<pts.length;i++){ d+=haversine(pts[i-1], pts[i]); } return d;
+    }
+
+    async function loadRecentTracks(){
+      const { data:rows } = await sb.from('tracks').select('id,name,created_at').eq('club_id',CLUB_ID).order('created_at',{ascending:false}).limit(20);
+      const ul = $('#track-list');
+      ul.innerHTML = (rows||[]).map(r=>{
+        const dt = new Date(r.created_at); const ds = dt.toLocaleDateString('de-AT')+' '+dt.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
+        return \`<li><a href="#" data-track="\${r.id}">\${ds}\${r.name?(' – '+r.name):''}</a></li>\`;
+      }).join('') || '<i>(keine Tracks)</i>';
+    }
+    $('#track-list').addEventListener('click', async (e)=>{
+      const a = e.target.closest('a[data-track]'); if(!a) return; e.preventDefault();
+      const id = a.getAttribute('data-track');
+      const [{ data:t }, { data:m }] = await Promise.all([
+        sb.from('tracks').select('coords').eq('id', id).single(),
+        sb.from('track_marks').select('lat,lng,label').eq('track_id', id)
+      ]);
+      initMap(); poly.setLatLngs([]); (m||[]).forEach(mm=>L.marker([mm.lat,mm.lng],{title:mm.label||'X'}).addTo(map));
+      const latlngs = (t?.coords||[]).map(p=>[p.lat,p.lng]); if(!latlngs.length) return;
+      poly.setLatLngs(latlngs); map.fitBounds(L.latLngBounds(latlngs), { padding:[20,20] });
+    });
+
+    // ===== Navigation tiles =====
+    window.go = go;
+
+    // ===== Start: initial state =====
+    document.addEventListener('DOMContentLoaded', ()=>{
+      // initial screen is login or home (handled in getSession)
+      $('#btnBack').style.display = 'none';
+      // Feedback dialog
+      // nothing else here
+    });
+
+    // ===== Admin/Team open handlers =====
+    document.querySelector('.tile[onclick="go(\'admin\')"]')?.addEventListener('click', async ()=>{ await adminInitFull(); go('admin'); });
+    document.querySelector('.tile[onclick="go(\'team\')"]')?.addEventListener('click', async ()=>{ go('team'); });
+
   </script>
 </body>
 </html>
